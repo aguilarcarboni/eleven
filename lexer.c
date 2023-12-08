@@ -54,7 +54,6 @@ Token getNextToken(char* input, int* position) {
         }
         strncpy(value, &input[start], length);
         value[length] = '\0';
-        free(value);
         return (Token){TOKEN_INT, value};
 
     } else if (isalpha(currentChar)) { // if char is letter
@@ -76,7 +75,6 @@ Token getNextToken(char* input, int* position) {
         strncpy(value, &input[start], length); // Copy string at start with length of number
 
         value[length] = '\0'; // add null char
-        free(value);
 
         return (Token){TOKEN_IDENTIFIER, value};
     }
