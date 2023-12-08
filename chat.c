@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <crtdbg.h>
 
 // Helper files
 #include "types.c"
@@ -39,6 +40,8 @@ int main() {
         int position = 0;
         int tokenCount = 0;
 
+        line[strlen(line)] = '\0';
+
         // Tokenize line
         Token nextToken = getNextToken(line, &position);
         while (nextToken.type != TOKEN_EOF) {
@@ -49,105 +52,20 @@ int main() {
         // Parse tokens
         if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
             variables[0] = parseVariableDeclaration(&tokens, variables);
+            printf("%d", variables[0].value);
         } else {
             result = parseExpression(&tokens, variables);
         }
-        position = 0;
-        tokenCount = 0;
     }
     printf("%d\n", result);
     
     free(tokens);
     free(variables);
 
+    _CrtDumpMemoryLeaks();
+
     fclose(file);
     return 0;
-}
-
-// Lexer
-
-Token getNextToken(char* input, int* position);
-
-// Returns the next token in the .agp file
-Token getNextToken(char* input, int* position) {
-    char currentChar = input[*position];
-
-    // Skip whitespace characters
-    while (isspace(currentChar)) {
-        (*position)++;
-        currentChar = input[*position];
-    }
-
-    if (currentChar == '\0') {
-        return (Token){TOKEN_EOF, NULL};
-    }
-    else if (currentChar == '\n') {
-        (*position)++;
-        return (Token){TOKEN_NL, "\n"};
-    } else if (currentChar == '+') {
-        (*position)++;
-        return (Token){TOKEN_PLUS, "+"};
-    } else if (currentChar == '-') {
-        (*position)++;
-        return (Token){TOKEN_MINUS, "-"};
-    } else if (currentChar == '*') {
-        (*position)++;
-        return (Token){TOKEN_MUL, "*"};
-    } else if (currentChar == '/') {
-        (*position)++;
-        return (Token){TOKEN_DIV, "/"};
-    } else if (currentChar == '(') {
-        (*position)++;
-        return (Token){TOKEN_LPAREN, "("};
-    } else if (currentChar == ')') {
-        (*position)++;
-        return (Token){TOKEN_RPAREN, ")"};
-    } else if (currentChar == '=') {
-        (*position)++;
-        return (Token){TOKEN_EQUALS, "="};
-    } else if (isdigit(currentChar)) { // if char is a number
-
-        int start = *position; 
-        while (isdigit(input[*position])) { // read whole number
-            (*position)++;
-        }
-
-        int length = *position - start;
-        char* value = (char*)malloc(length + 1);
-        if (value == NULL) {
-            printf("Error: Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-        strncpy(value, &input[start], length);
-        value[length] = '\0';
-        return (Token){TOKEN_INT, value};
-
-    } else if (isalpha(currentChar)) { // if char is letter
-        
-        int start = *position;
-
-        while (isalnum(input[*position])) { // read whole word
-            (*position)++;
-        }
-
-        int length = *position - start; // splice string
-
-        char* value = (char*)malloc(length + 1); // allocate space for one value
-        if (value == NULL) {
-            printf("Error: Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-
-        strncpy(value, &input[start], length); // Copy string at start with length of number
-
-        value[length] = '\0'; // add null char
-
-        return (Token){TOKEN_IDENTIFIER, value};
-    }
-
-    // If the current character is not recognized, return an error token
-    printf("Error: Unrecognized character '%c'\n", currentChar);
-    exit(EXIT_FAILURE);
 }
 
 // Parser helper functions
@@ -184,7 +102,6 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     // Value (an integer in this case) -- parseExpression()
     //int value = atoi((*tokens)->value);
     int value = parseExpression(tokens, variables);
-    printf("%d", value);
     (*tokens)++;
 
     return (Variable){variableName, value}; // possible leak
@@ -264,4 +181,92 @@ int parseExpression(Token** tokens, Variable* variables) {
     }
 
     return result;
+}
+
+// Lexer
+
+Token getNextToken(char* input, int* position);
+
+// Returns the next token in the .agp file
+Token getNextToken(char* input, int* position) {
+    char currentChar = input[*position];
+
+    // Skip whitespace characters
+    while (isspace(currentChar)) {
+        (*position)++;
+        currentChar = input[*position];
+    }
+
+    if (currentChar == '\0') {
+        return (Token){TOKEN_EOF, NULL};
+    }
+    else if (currentChar == '\n') {
+        (*position)++;
+        return (Token){TOKEN_NL, "\n"};
+    } else if (currentChar == '+') {
+        (*position)++;
+        return (Token){TOKEN_PLUS, "+"};
+    } else if (currentChar == '-') {
+        (*position)++;
+        return (Token){TOKEN_MINUS, "-"};
+    } else if (currentChar == '*') {
+        (*position)++;
+        return (Token){TOKEN_MUL, "*"};
+    } else if (currentChar == '/') {
+        (*position)++;
+        return (Token){TOKEN_DIV, "/"};
+    } else if (currentChar == '(') {
+        (*position)++;
+        return (Token){TOKEN_LPAREN, "("};
+    } else if (currentChar == ')') {
+        (*position)++;
+        return (Token){TOKEN_RPAREN, ")"};
+    } else if (currentChar == '=') {
+        (*position)++;
+        return (Token){TOKEN_EQUALS, "="};
+    } else if (isdigit(currentChar)) { // if char is a number
+
+        int start = *position; 
+        while (isdigit(input[*position])) { // read whole number
+            (*position)++;
+        }
+
+        int length = *position - start;
+        char* value = (char*)malloc(length + 1);
+        if (value == NULL) {
+            printf("Error: Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+        strncpy(value, &input[start], length);
+        value[length] = '\0';
+        return (Token){TOKEN_INT, value};
+
+    } else if (isalpha(currentChar)) { // if char is letter
+        
+        int start = *position;
+
+        while (isalnum(input[*position])) { // read whole word
+            (*position)++;
+        }
+
+        int length = *position - start; // splice string
+
+        //malloc: *** error for object 0x7f8ebd705b20: pointer being freed was not allocated
+
+        char* value = (char*)malloc(length + 1); // allocate space for one value
+        if (value == NULL) {
+            printf("Error: Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+
+        strncpy(value, &input[start], length); // Copy string at start with length of number
+
+        value[length] = '\0'; // add null char
+
+        return (Token){TOKEN_IDENTIFIER, value};
+    }
+
+    // If the current character is not recognized, return an error token
+    printf("Error: Unrecognized character '%c'\n", currentChar);
+    exit(EXIT_FAILURE);
 }

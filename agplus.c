@@ -51,7 +51,6 @@ int main() {
         // Parse tokens
         if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
             variables[0] = parseVariableDeclaration(&tokens, variables);
-            printf("%d", variables[0].value);
         } else {
             result = parseExpression(&tokens, variables);
         }
