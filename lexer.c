@@ -66,6 +66,8 @@ Token getNextToken(char* input, int* position) {
 
         int length = *position - start; // splice string
 
+        //malloc: *** error for object 0x7f8ebd705b20: pointer being freed was not allocated
+
         char* value = (char*)malloc(length + 1); // allocate space for one value
         if (value == NULL) {
             printf("Error: Memory allocation failed\n");
