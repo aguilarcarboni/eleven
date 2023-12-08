@@ -1,0 +1,22 @@
+int x = 5
+2 + x
+'stringy'
+array.x = y
+
+$$$ comment
+
+Ver como
+
+if condition: 
+    hola
+    todo bien
+---
+
+while condition:
+    si si todo bien
+    linda mae
+---
+
+int funcName:
+
+:)
