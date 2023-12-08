@@ -34,12 +34,13 @@ int main() {
 	}
 
     // Read lines
-    while(fgets(line, 200, file)) {
+    while(fgets(line, 400, file)) {
         printf("%s", line);
-        int position = 0; // Pointer ??? 
+        int position = 0;
         int tokenCount = 0;
 
         line[strlen(line)] = '\0';
+
         // Tokenize line
         Token nextToken = getNextToken(line, &position);
         while (nextToken.type != TOKEN_EOF) {
@@ -49,25 +50,17 @@ int main() {
 
         // Parse tokens
         if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
-            variables[variableCount++] = parseVariableDeclaration(&tokens, variables);
+            variables[0] = parseVariableDeclaration(&tokens, variables);
+            printf("%d", variables[0].value);
         } else {
             result = parseExpression(&tokens, variables);
-            printf("Result: %d\n", result);
         }
     }
+    printf("%d\n", result);
     
-    if (tokens != NULL) {
-        free(tokens);
-    }
-
-    if (variables != NULL) {
-        free(variables);
-    }
+    free(tokens);
+    free(variables);
 
     fclose(file);
     return 0;
 }
-
-// Declare and then change value of variable
-// 
-// val op (val)

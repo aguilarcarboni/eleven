@@ -5,7 +5,6 @@ int parseExpression(Token** tokens, Variable* variables);
 
 // Returns a variable that can be stored for later use
 Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
-    Variable variable;
 
     // Variable type (e.g., int)
     if ((*tokens)->type != TOKEN_IDENTIFIER) {
@@ -35,7 +34,7 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     int value = parseExpression(tokens, variables);
     (*tokens)++;
 
-    return (Variable){strdup(variableName), value}; // possible leak
+    return (Variable){variableName, value}; // possible leak
 }
 
 // Returns an integer that can be used for a further operations     (expression), x, 2
