@@ -1,79 +1,42 @@
+#define _CRTDBG_MAP_ALLOC
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <crtdbg.h>
 
-// Helper files
-#include "types.c"
-#include "lexer.c"
-#include "parser.c"
+// Token types
+typedef enum {
+    TOKEN_INT,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MUL,
+    TOKEN_DIV,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_EOF,
+    TOKEN_IDENTIFIER,
+    TOKEN_EQUALS,
+    TOKEN_NL
+} TokenType;
 
-int main() {
-    char line[200];
-    int variableCount = 0;
-    int result;
+// Token structure
+typedef struct {
+    TokenType type;
+    char* value;
+} Token;
 
-    Token* tokens = (Token*)malloc(sizeof(Token) * strlen(line)); // initialize dynamic tokens array depending on line size
-    if (tokens == NULL) {
-        printf("Error: Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
+// Variable structure to store variable name and value
+typedef struct {
+    char* name;
+    int value;
+} Variable;
 
-    Variable* variables = (Variable*)malloc(sizeof(Variable)); // initialize size for one variable
-    if (variables == NULL) {
-        printf("Error: Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Read file
-    FILE *file;
-    file = fopen("program.agp", "r");
-	if (file == NULL) {
-		printf("Error: Couldn't open file\n");
-		return (-1); 
-	}
-
-    // Read lines
-    while(fgets(line, 400, file)) {
-        printf("%s", line);
-        int position = 0;
-        int tokenCount = 0;
-
-        line[strlen(line)] = '\0';
-
-        // Tokenize line
-        Token nextToken = getNextToken(line, &position);
-        while (nextToken.type != TOKEN_EOF) {
-            tokens[tokenCount++] = nextToken;
-            nextToken = getNextToken(line, &position);
-        }
-
-        // Parse tokens
-        if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
-            variables[0] = parseVariableDeclaration(&tokens, variables);
-            printf("%d", variables[0].value);
-        } else {
-            result = parseExpression(&tokens, variables);
-        }
-    }
-    printf("%d\n", result);
-    
-    free(tokens);
-    free(variables);
-
-    _CrtDumpMemoryLeaks();
-
-    fclose(file);
-    return 0;
-}
-
-// Parser helper functions
 int parseFactor(Token** tokens, Variable* variables);
 int parseTerm(Token** tokens, Variable* variables);
 int parseExpression(Token** tokens, Variable* variables);
 
-// Returns a variable that can be stored for later use
 Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
 
     // Variable type (e.g., int)
@@ -104,7 +67,7 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     int value = parseExpression(tokens, variables);
     (*tokens)++;
 
-    return (Variable){variableName, value}; // possible leak
+    return (Variable) { variableName, value }; // possible leak
 }
 
 // Returns an integer that can be used for a further operations     (expression), x, 2
@@ -114,7 +77,8 @@ int parseFactor(Token** tokens, Variable* variables) {
         int result = atoi(currentToken->value);
         (*tokens)++;
         return result;
-    } else if (currentToken->type == TOKEN_LPAREN) {
+    }
+    else if (currentToken->type == TOKEN_LPAREN) {
         (*tokens)++;
         int result = parseExpression(tokens, variables); // parse expression inside parentheses
         if ((*tokens)->type != TOKEN_RPAREN) {
@@ -123,14 +87,16 @@ int parseFactor(Token** tokens, Variable* variables) {
         }
         (*tokens)++; // Move this line to after checking for RPAREN
         return result;
-    } else if (currentToken->type == TOKEN_IDENTIFIER) {
+    }
+    else if (currentToken->type == TOKEN_IDENTIFIER) {
         // Variable reference, not a literal value
         // You can add your logic here to retrieve the value of the variable from memory
         // For simplicity, let's assume all variables are initialized and set to an integer value
         int result = variables[0].value;
         (*tokens)++;
         return result;
-    } else {
+    }
+    else {
         printf("Error: Unexpected token\n");
         exit(EXIT_FAILURE);
     }
@@ -150,7 +116,8 @@ int parseTerm(Token** tokens, Variable* variables) {
 
         if (currentToken->type == TOKEN_MUL) {
             result *= nextFactor;
-        } else if (currentToken->type == TOKEN_DIV) {
+        }
+        else if (currentToken->type == TOKEN_DIV) {
             if (nextFactor == 0) {
                 printf("Error: Division by zero\n");
                 exit(EXIT_FAILURE);
@@ -175,7 +142,8 @@ int parseExpression(Token** tokens, Variable* variables) {
 
         if (currentToken->type == TOKEN_PLUS) {
             result += nextTerm;
-        } else if (currentToken->type == TOKEN_MINUS) {
+        }
+        else if (currentToken->type == TOKEN_MINUS) {
             result -= nextTerm;
         }
     }
@@ -198,35 +166,43 @@ Token getNextToken(char* input, int* position) {
     }
 
     if (currentChar == '\0') {
-        return (Token){TOKEN_EOF, NULL};
+        return (Token) { TOKEN_EOF, NULL };
     }
     else if (currentChar == '\n') {
         (*position)++;
-        return (Token){TOKEN_NL, "\n"};
-    } else if (currentChar == '+') {
+        return (Token) { TOKEN_NL, "\n" };
+    }
+    else if (currentChar == '+') {
         (*position)++;
-        return (Token){TOKEN_PLUS, "+"};
-    } else if (currentChar == '-') {
+        return (Token) { TOKEN_PLUS, "+" };
+    }
+    else if (currentChar == '-') {
         (*position)++;
-        return (Token){TOKEN_MINUS, "-"};
-    } else if (currentChar == '*') {
+        return (Token) { TOKEN_MINUS, "-" };
+    }
+    else if (currentChar == '*') {
         (*position)++;
-        return (Token){TOKEN_MUL, "*"};
-    } else if (currentChar == '/') {
+        return (Token) { TOKEN_MUL, "*" };
+    }
+    else if (currentChar == '/') {
         (*position)++;
-        return (Token){TOKEN_DIV, "/"};
-    } else if (currentChar == '(') {
+        return (Token) { TOKEN_DIV, "/" };
+    }
+    else if (currentChar == '(') {
         (*position)++;
-        return (Token){TOKEN_LPAREN, "("};
-    } else if (currentChar == ')') {
+        return (Token) { TOKEN_LPAREN, "(" };
+    }
+    else if (currentChar == ')') {
         (*position)++;
-        return (Token){TOKEN_RPAREN, ")"};
-    } else if (currentChar == '=') {
+        return (Token) { TOKEN_RPAREN, ")" };
+    }
+    else if (currentChar == '=') {
         (*position)++;
-        return (Token){TOKEN_EQUALS, "="};
-    } else if (isdigit(currentChar)) { // if char is a number
+        return (Token) { TOKEN_EQUALS, "=" };
+    }
+    else if (isdigit(currentChar)) { // if char is a number
 
-        int start = *position; 
+        int start = *position;
         while (isdigit(input[*position])) { // read whole number
             (*position)++;
         }
@@ -239,10 +215,11 @@ Token getNextToken(char* input, int* position) {
         }
         strncpy(value, &input[start], length);
         value[length] = '\0';
-        return (Token){TOKEN_INT, value};
+        return (Token) { TOKEN_INT, value };
 
-    } else if (isalpha(currentChar)) { // if char is letter
-        
+    }
+    else if (isalpha(currentChar)) { // if char is letter
+
         int start = *position;
 
         while (isalnum(input[*position])) { // read whole word
@@ -253,20 +230,82 @@ Token getNextToken(char* input, int* position) {
 
         //malloc: *** error for object 0x7f8ebd705b20: pointer being freed was not allocated
 
-        char* value = (char*)malloc(length + 1); // allocate space for one value
-        if (value == NULL) {
-            printf("Error: Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
+        char value[200];
 
         strncpy(value, &input[start], length); // Copy string at start with length of number
 
         value[length] = '\0'; // add null char
 
-        return (Token){TOKEN_IDENTIFIER, value};
+        return (Token) { TOKEN_IDENTIFIER, value };
     }
 
     // If the current character is not recognized, return an error token
     printf("Error: Unrecognized character '%c'\n", currentChar);
     exit(EXIT_FAILURE);
+}
+
+int main() {
+    char line[200];
+    int variableCount = 0;
+    int result = 0;
+
+    // Initialize memory for one variable
+    Variable* variables = malloc(sizeof(Variable));
+    if (variables == NULL) {
+        printf("Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize memory for tokens
+    Token* tokens = malloc(sizeof(Token));
+    if (tokens == NULL) {
+        printf("Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Read file
+    FILE* file;
+    file = fopen("program.agp", "r");
+    if (file == NULL) {
+        printf("Error: Couldn't open file\n");
+        return (-1);
+    }
+
+    // Read lines
+    while (fgets(line, 199, file)) {
+        printf("%s", line);
+        int position = 0;
+        int tokenCount = 0;
+
+        line[strlen(line)] = '\0';
+
+        void* tokensLocation = realloc(tokens, sizeof(Token) * strlen(line));
+
+        // Tokenize line
+        Token nextToken = getNextToken(line, &position);
+        while (nextToken.type != TOKEN_EOF) {
+            tokens[tokenCount++] = nextToken;
+            nextToken = getNextToken(line, &position);
+        }
+
+        // Parse tokens
+        if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
+            variables[0] = parseVariableDeclaration(&tokens, variables);
+        }
+        else {
+            result = parseExpression(&tokens, variables);
+        }
+        // Update tokens pointer after parsing the expression
+        if (tokensLocation != NULL) {
+            tokens = tokensLocation;
+        }
+    }
+    printf("\n%d", result);
+
+    free(tokens);
+    free(variables);
+    fclose(file);
+
+    _CrtDumpMemoryLeaks();
+    return 0;
 }
