@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <crtdbg.h>
+//#include <crtdbg.h>
 
 // Token types
 typedef enum {
@@ -306,6 +306,6 @@ int main() {
     free(variables);
     fclose(file);
 
-    _CrtDumpMemoryLeaks();
+    //_CrtDumpMemoryLeaks();
     return 0;
 }
