@@ -250,7 +250,7 @@ Token getNextToken(char* input, int* position) {
 
         // Check if string has .
 
-        return (Token) { TOKEN_INT, _strdup(value) };
+        return (Token) { TOKEN_INT, strdup(value) };
 
 
     }
@@ -285,7 +285,7 @@ Token getNextToken(char* input, int* position) {
             return (Token) { TOKEN_ELSE, "else" };
         }
 
-        return (Token) { TOKEN_IDENTIFIER, _strdup(value) };
+        return (Token) { TOKEN_IDENTIFIER, strdup(value) };
     }
 
     // If the current character is not recognized, return an error token
@@ -307,6 +307,13 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
+        // Allocate memory for tokens
+    Token* tokens = malloc(sizeof(Token));
+    if (tokens == NULL) {
+        printf("Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Read file
     FILE* file;
     file = fopen("program.agp", "r");
@@ -323,15 +330,8 @@ int main(void) {
 
         line[strlen(line)] = '\0';
 
-        // Allocate memory for tokens
-        Token* tokens = malloc(sizeof(Token) * strlen(line));
-        if (tokens == NULL) {
-            printf("Error: Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-
         // Reallocate data for tokens
-        void* tokensLocation = tokens;
+        void* tokensLocation = realloc(tokens, sizeof(Token) * strlen(line));
 
         // Tokenize line
         Token nextToken = getNextToken(line, &position);
@@ -371,9 +371,9 @@ int main(void) {
         if (tokensLocation != NULL) {
             tokens = tokensLocation;
         }
-        free(tokens);
     }
     printf("\n%d\n", result);
+    free(tokens);
     free(variables);
     fclose(file);
     exit(EXIT_SUCCESS);

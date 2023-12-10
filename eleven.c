@@ -21,7 +21,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    // Initialize memory for tokens
+        // Allocate memory for tokens
     Token* tokens = malloc(sizeof(Token));
     if (tokens == NULL) {
         printf("Error: Memory allocation failed\n");
@@ -44,13 +44,6 @@ int main(void) {
 
         line[strlen(line)] = '\0';
 
-        // Allocate memory for tokens
-        Token* tokens = malloc(sizeof(Token) * strlen(line));
-        if (tokens == NULL) {
-            printf("Error: Memory allocation failed\n");
-            exit(EXIT_FAILURE);
-        }
-
         // Reallocate data for tokens
         void* tokensLocation = realloc(tokens, sizeof(Token) * strlen(line));
 
@@ -70,12 +63,15 @@ int main(void) {
             else if (tokens[0].type == TOKEN_IF) {
                 tokens++;
                 condition = parseExpression(&tokens, variables);
-            } else if (tokens[0].type == TOKEN_ELSE) {
+            }
+            else if (tokens[0].type == TOKEN_ELSE) {
                 tokens++;
-                condition = !conditionCopy; 
-            } else if (tokens[0].type == TOKEN_EOFUNC) {
+                condition = !conditionCopy;
+            }
+            else if (tokens[0].type == TOKEN_EOFUNC) {
                 //
-            } else {
+            }
+            else {
                 result = parseExpression(&tokens, variables);
             }
         }
@@ -84,12 +80,13 @@ int main(void) {
             conditionCopy = condition;
             condition = 1;
         }
-        
+
         // Update tokens pointer after parsing the expression
         if (tokensLocation != NULL) {
             tokens = tokensLocation;
         }
     }
+
     printf("\n%d\n", result);
     free(tokens);
     free(variables);
