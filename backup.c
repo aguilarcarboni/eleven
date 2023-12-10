@@ -239,8 +239,11 @@ Token getNextToken(char* input, int* position) {
         // Calculate length of token
         int length = *position - start;
 
-        // Initialize token value (MAX LINE LENGTH)
-        char value[200];
+        // Allocate memory for value
+        char* value = malloc(length + 1);
+
+        // Create a static copy of value
+        char valueCopy[200];
 
         // Copy number at start with length of number
         strncpy(value, &input[start], length);
@@ -248,9 +251,12 @@ Token getNextToken(char* input, int* position) {
         // add NULL char
         value[length] = '\0';
 
-        // Check if string has .
+        // Copy value into static copy and free
+        strcpy(valueCopy, value);
+        printf("%s", valueCopy);
+        free(value);
 
-        return (Token) { TOKEN_INT, strdup(value) };
+        return (Token) { TOKEN_INT, _strdup(valueCopy) };
 
 
     }
@@ -267,25 +273,33 @@ Token getNextToken(char* input, int* position) {
         // Calculate length of token
         int length = *position - start;
 
-        // Initialize token value (MAX LINE LENGTH)
-        char value[200];
+        // Allocate memory for value
+        char* value = malloc(length + 1);
+
+        // Create a static copy of value
+        char valueCopy[200];
 
         // Copy number at start with length of number
         strncpy(value, &input[start], length);
 
-        // add NULL char
+        // Add null char
         value[length] = '\0';
 
-        if (strcmp(value, "if") == 0) {
+        // Copy value into static copy and free
+        strcpy(valueCopy, value);
+        free(value);
+
+        if (strcmp(valueCopy, "if") == 0) {
             (*position)++;
             return (Token) { TOKEN_IF, "if" };
         }
-        else if (strcmp(value, "else") == 0) {
+        else if (strcmp(valueCopy, "else") == 0) {
             (*position)++;
             return (Token) { TOKEN_ELSE, "else" };
         }
-
-        return (Token) { TOKEN_IDENTIFIER, strdup(value) };
+        else {
+            return (Token) { TOKEN_IDENTIFIER, valueCopy };
+        }
     }
 
     // If the current character is not recognized, return an error token
@@ -307,7 +321,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-        // Allocate memory for tokens
+    // Allocate memory for tokens
     Token* tokens = malloc(sizeof(Token));
     if (tokens == NULL) {
         printf("Error: Memory allocation failed\n");
@@ -336,7 +350,8 @@ int main(void) {
         // Tokenize line
         Token nextToken = getNextToken(line, &position);
         while (nextToken.type != TOKEN_EOF) {
-            tokens[tokenCount++] = nextToken;
+            tokens[tokenCount] = nextToken;
+            tokenCount++;
             nextToken = getNextToken(line, &position);
         }
 
@@ -376,6 +391,7 @@ int main(void) {
     free(tokens);
     free(variables);
     fclose(file);
+
     exit(EXIT_SUCCESS);
     return 0;
 }
