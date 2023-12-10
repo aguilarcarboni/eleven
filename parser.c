@@ -36,7 +36,10 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     int value = parseExpression(tokens, variables);
     (*tokens)++;
 
-    return (Variable) { variableName, value }; // possible leak
+    Variable result = {variableName, value};
+    free(variableName);
+
+    return result; // possible leak
 }
 
 // Returns an integer that can be used for a further operations     (expression), x, 2

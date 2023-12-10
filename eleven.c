@@ -86,11 +86,11 @@ int main(void) {
             tokens = tokensLocation;
         }
     }
-
     printf("\n%d\n", result);
     free(tokens);
     free(variables);
     fclose(file);
+    
     exit(EXIT_SUCCESS);
     return 0;
 }
