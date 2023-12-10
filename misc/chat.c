@@ -1,5 +1,3 @@
-#define _CRTDBG_MAP_ALLOC
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,13 +35,14 @@ typedef struct {
     int value;
 } Variable;
 
-// Function declarations
-
+Token getNextToken(char* input, int* position);
 int parseFactor(Token** tokens, Variable* variables);
 int parseTerm(Token** tokens, Variable* variables);
 int parseExpression(Token** tokens, Variable* variables);
+Variable parseVariableDeclaration(Token** tokens, Variable* variables);
 
-
+// Parser
+//
 Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
 
     // Variable type
@@ -80,7 +79,7 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
 // Returns an integer that can be used for a further operations     (expression), x, 2
 int parseFactor(Token** tokens, Variable* variables) {
     if ((*tokens)->type == TOKEN_INT) {
-        if (((*tokens)+1)->type == TOKEN_POINT) {
+        if (((*tokens) + 1)->type == TOKEN_POINT) {
             // get next next token (decimal)
             // generate string for float
             // result = atof(string)
@@ -106,7 +105,8 @@ int parseFactor(Token** tokens, Variable* variables) {
         int result = variables[0].value;
         (*tokens)++;
         return result;
-    } else {
+    }
+    else {
         printf("Error: Unexpected token\n");
         exit(EXIT_FAILURE);
     }
@@ -144,11 +144,10 @@ int parseExpression(Token** tokens, Variable* variables) {
 
     int result = parseTerm(tokens, variables);
 
-    if ((*tokens)->type == TOKEN_EQUALS && ((*tokens)+1)->type == TOKEN_EQUALS) {
-        (*tokens)+=2;
+    if ((*tokens)->type == TOKEN_EQUALS && ((*tokens) + 1)->type == TOKEN_EQUALS) {
+        (*tokens) += 2;
         int nextTerm = parseTerm(tokens, variables);
         return (result == nextTerm);
-
     } else {
         while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
             Token* currentToken = *tokens;
@@ -169,8 +168,6 @@ int parseExpression(Token** tokens, Variable* variables) {
 }
 
 // Lexer
-Token getNextToken(char* input, int* position);
-
 // Returns the next token in the .agp file
 Token getNextToken(char* input, int* position) {
     char currentChar = input[*position];
@@ -222,11 +219,11 @@ Token getNextToken(char* input, int* position) {
     }
     else if (currentChar == '_') {
         (*position)++;
-        return (Token) {TOKEN_EOFUNC , "_"};
+        return (Token) { TOKEN_EOFUNC, "_" };
     }
     else if (currentChar == '.') {
         (*position)++;
-        return (Token) {TOKEN_POINT , "."};
+        return (Token) { TOKEN_POINT, "." };
     }
     else if (isdigit(currentChar)) { // if char is a number
 
@@ -331,8 +328,13 @@ int main(void) {
         printf("%s", line);
 
         line[strlen(line)] = '\0';
-        
-        // Check if you should read next line
+
+        // Allocate memory for tokens
+        Token* tokens = malloc(sizeof(Token) * strlen(line));
+        if (tokens == NULL) {
+            printf("Error: Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
 
         // Reallocate data for tokens
         void* tokensLocation = realloc(tokens, sizeof(Token) * strlen(line));
@@ -374,7 +376,6 @@ int main(void) {
         }
     }
     printf("\n%d\n", result);
-
     free(tokens);
     free(variables);
     fclose(file);

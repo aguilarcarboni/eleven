@@ -1,12 +1,14 @@
-// Parser helper functions
+// Parser
+
+// Function declarations
 int parseFactor(Token** tokens, Variable* variables);
 int parseTerm(Token** tokens, Variable* variables);
 int parseExpression(Token** tokens, Variable* variables);
 
-// Returns a variable that can be stored for later use
+//
 Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
 
-    // Variable type (e.g., int)
+    // Variable type
     if ((*tokens)->type != TOKEN_IDENTIFIER) {
         printf("Error: Expected variable type\n");
         exit(EXIT_FAILURE);
@@ -34,17 +36,22 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     int value = parseExpression(tokens, variables);
     (*tokens)++;
 
-    return (Variable){variableName, value}; // possible leak
+    return (Variable) { variableName, value }; // possible leak
 }
 
 // Returns an integer that can be used for a further operations     (expression), x, 2
 int parseFactor(Token** tokens, Variable* variables) {
-    Token* currentToken = *tokens;
-    if (currentToken->type == TOKEN_INT) {
-        int result = atoi(currentToken->value);
+    if ((*tokens)->type == TOKEN_INT) {
+        if (((*tokens) + 1)->type == TOKEN_POINT) {
+            // get next next token (decimal)
+            // generate string for float
+            // result = atof(string)
+        }
+        int result = atoi((*tokens)->value);
         (*tokens)++;
         return result;
-    } else if (currentToken->type == TOKEN_LPAREN) {
+    }
+    else if ((*tokens)->type == TOKEN_LPAREN) {
         (*tokens)++;
         int result = parseExpression(tokens, variables); // parse expression inside parentheses
         if ((*tokens)->type != TOKEN_RPAREN) {
@@ -53,14 +60,16 @@ int parseFactor(Token** tokens, Variable* variables) {
         }
         (*tokens)++; // Move this line to after checking for RPAREN
         return result;
-    } else if (currentToken->type == TOKEN_IDENTIFIER) {
+    }
+    else if ((*tokens)->type == TOKEN_IDENTIFIER) {
         // Variable reference, not a literal value
         // You can add your logic here to retrieve the value of the variable from memory
         // For simplicity, let's assume all variables are initialized and set to an integer value
         int result = variables[0].value;
         (*tokens)++;
         return result;
-    } else {
+    }
+    else {
         printf("Error: Unexpected token\n");
         exit(EXIT_FAILURE);
     }
@@ -80,7 +89,8 @@ int parseTerm(Token** tokens, Variable* variables) {
 
         if (currentToken->type == TOKEN_MUL) {
             result *= nextFactor;
-        } else if (currentToken->type == TOKEN_DIV) {
+        }
+        else if (currentToken->type == TOKEN_DIV) {
             if (nextFactor == 0) {
                 printf("Error: Division by zero\n");
                 exit(EXIT_FAILURE);
@@ -92,23 +102,30 @@ int parseTerm(Token** tokens, Variable* variables) {
     return result;
 }
 
-// Returns the result to the expression     (10/2) + 1, 1+1, ((3*5+1)/10)+10
+// Returns the result to the expression     (10/2) + 1, 1+1, ((3*5+1)/10)+10, 1 == 2
 int parseExpression(Token** tokens, Variable* variables) {
+
     int result = parseTerm(tokens, variables);
 
-    while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
-        Token* currentToken = *tokens;
-
-        (*tokens)++;
-
+    if ((*tokens)->type == TOKEN_EQUALS && ((*tokens) + 1)->type == TOKEN_EQUALS) {
+        (*tokens) += 2;
         int nextTerm = parseTerm(tokens, variables);
+        return (result == nextTerm);
+    } else {
+        while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
+            Token* currentToken = *tokens;
 
-        if (currentToken->type == TOKEN_PLUS) {
-            result += nextTerm;
-        } else if (currentToken->type == TOKEN_MINUS) {
-            result -= nextTerm;
+            (*tokens)++;
+
+            int nextTerm = parseTerm(tokens, variables);
+
+            if (currentToken->type == TOKEN_PLUS) {
+                result += nextTerm;
+            }
+            else if (currentToken->type == TOKEN_MINUS) {
+                result -= nextTerm;
+            }
         }
+        return result;
     }
-
-    return result;
 }

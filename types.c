@@ -1,3 +1,4 @@
+// Types
 // Token types
 typedef enum {
     TOKEN_INT,
@@ -9,8 +10,13 @@ typedef enum {
     TOKEN_RPAREN,
     TOKEN_EOF,
     TOKEN_IDENTIFIER,
-    TOKEN_EQUALS,     
-    TOKEN_NL
+    TOKEN_EQUALS,
+    TOKEN_NL,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_SOFUNC,
+    TOKEN_EOFUNC,
+    TOKEN_POINT
 } TokenType;
 
 // Token structure
