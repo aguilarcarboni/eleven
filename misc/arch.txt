@@ -10,7 +10,11 @@ Ver como
 if condition: 
     hola
     todo bien
----
+___
+else:
+    chao
+    todo mal
+___
 
 while condition:
     si si todo bien

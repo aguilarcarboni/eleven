@@ -1,3 +1,7 @@
-int x = (2 + 2)
-int y = x + 4
-y + 2
+if ((2) == 2) :
+    int x = 2+2
+_
+else:
+    int x = 2
+_
+x+4
