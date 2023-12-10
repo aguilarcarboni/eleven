@@ -239,11 +239,8 @@ Token getNextToken(char* input, int* position) {
         // Calculate length of token
         int length = *position - start;
 
-        // Allocate memory for value
-        char* value = malloc(length + 1);
-
-        // Create a static copy of value
-        char valueCopy[200];
+        // Create a static value
+        char value[200];
 
         // Copy number at start with length of number
         strncpy(value, &input[start], length);
@@ -251,12 +248,7 @@ Token getNextToken(char* input, int* position) {
         // add NULL char
         value[length] = '\0';
 
-        // Copy value into static copy and free
-        strcpy(valueCopy, value);
-        printf("%s", valueCopy);
-        free(value);
-
-        return (Token) { TOKEN_INT, _strdup(valueCopy) };
+        return (Token) { TOKEN_INT, _strdup(value) };
 
 
     }
