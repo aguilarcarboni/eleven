@@ -35,7 +35,7 @@ typedef struct {
     int value;
 } Variable;
 
-Token getNextToken(char* input, int* position);
+Token getNextToken(char* input, int* position, char** value);
 int parseFactor(Token** tokens, Variable* variables);
 int parseTerm(Token** tokens, Variable* variables);
 int parseExpression(Token** tokens, Variable* variables);
@@ -79,11 +79,6 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
 // Returns an integer that can be used for a further operations     (expression), x, 2
 int parseFactor(Token** tokens, Variable* variables) {
     if ((*tokens)->type == TOKEN_INT) {
-        if (((*tokens) + 1)->type == TOKEN_POINT) {
-            // get next next token (decimal)
-            // generate string for float
-            // result = atof(string)
-        }
         int result = atoi((*tokens)->value);
         (*tokens)++;
         return result;
@@ -170,7 +165,7 @@ int parseExpression(Token** tokens, Variable* variables) {
 
 // Lexer
 // Returns the next token in the .agp file
-Token getNextToken(char* input, int* position) {
+Token getNextToken(char* input, int* position, char** value) {
     char currentChar = input[*position];
 
     // Skip whitespace and tab characters
@@ -240,17 +235,27 @@ Token getNextToken(char* input, int* position) {
         int length = *position - start;
 
         // Create a static value
-        char value[200];
+        void* valueLocation = realloc(*value, length + 1);
+        if (valueLocation != NULL) {
+            *value = valueLocation;
+        }
 
         // Copy number at start with length of number
-        strncpy(value, &input[start], length);
+        strncpy(*value, &input[start], length);
 
         // add NULL char
-        value[length] = '\0';
+        (*value)[length] = '\0';
 
-        return (Token) { TOKEN_INT, _strdup(value) };
+        if (strcmp(*value, "if") == 0) {
+            (*position)++;
+            return (Token) { TOKEN_IF, "if" };
+        }
+        else if (strcmp(*value, "else") == 0) {
+            (*position)++;
+            return (Token) { TOKEN_ELSE, "else" };
+        }
 
-
+        return (Token) { TOKEN_INT, *value };
     }
     else if (isalpha(currentChar)) { // if char is letter
 
@@ -265,33 +270,28 @@ Token getNextToken(char* input, int* position) {
         // Calculate length of token
         int length = *position - start;
 
-        // Allocate memory for value
-        char* value = malloc(length + 1);
-
-        // Create a static copy of value
-        char valueCopy[200];
+        // Create a static value
+        void* valueLocation = realloc(*value, length + 1);
+        if (valueLocation != NULL) {
+            *value = valueLocation;
+        }
 
         // Copy number at start with length of number
-        strncpy(value, &input[start], length);
+        strncpy(*value, &input[start], length);
 
-        // Add null char
-        value[length] = '\0';
+        // add NULL char
+        (*value)[length] = '\0';
 
-        // Copy value into static copy and free
-        strcpy(valueCopy, value);
-        free(value);
-
-        if (strcmp(valueCopy, "if") == 0) {
+        if (strcmp(*value, "if") == 0) {
             (*position)++;
             return (Token) { TOKEN_IF, "if" };
         }
-        else if (strcmp(valueCopy, "else") == 0) {
+        else if (strcmp(*value, "else") == 0) {
             (*position)++;
             return (Token) { TOKEN_ELSE, "else" };
         }
-        else {
-            return (Token) { TOKEN_IDENTIFIER, valueCopy };
-        }
+
+        return (Token) { TOKEN_IDENTIFIER, *value };
     }
 
     // If the current character is not recognized, return an error token
@@ -320,6 +320,12 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
+    char* value = malloc(sizeof(char));
+    if (value == NULL) {
+        printf("Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Read file
     FILE* file;
     file = fopen("program.agp", "r");
@@ -340,11 +346,11 @@ int main(void) {
         void* tokensLocation = realloc(tokens, sizeof(Token) * strlen(line));
 
         // Tokenize line
-        Token nextToken = getNextToken(line, &position);
+        Token nextToken = getNextToken(line, &position, &value);
         while (nextToken.type != TOKEN_EOF) {
             tokens[tokenCount] = nextToken;
             tokenCount++;
-            nextToken = getNextToken(line, &position);
+            nextToken = getNextToken(line, &position, &value);
         }
 
         // Check if you can read line
@@ -380,6 +386,8 @@ int main(void) {
         }
     }
     printf("\n%d\n", result);
+
+    free(value);
     free(tokens);
     free(variables);
     fclose(file);
