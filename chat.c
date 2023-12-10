@@ -149,8 +149,7 @@ int parseExpression(Token** tokens, Variable* variables) {
         (*tokens) += 2;
         int nextTerm = parseTerm(tokens, variables);
         return (result == nextTerm);
-    }
-    else {
+    } else {
         while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
             Token* currentToken = *tokens;
 
@@ -298,16 +297,21 @@ Token getNextToken(char* input, int* position) {
 
 int main(void) {
     char line[200];
-
     int variableCount = 0;
     int result = 0;
-
     int condition = 1;
     int conditionCopy = condition;
 
-    // Initialize memory for 20 variables
+    // Initialize memory for one variable
     Variable* variables = malloc(sizeof(Variable) * 20);
     if (variables == NULL) {
+        printf("Error: Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize memory for tokens
+    Token* tokens = malloc(sizeof(Token));
+    if (tokens == NULL) {
         printf("Error: Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
@@ -327,7 +331,7 @@ int main(void) {
         printf("%s", line);
 
         line[strlen(line)] = '\0';
-
+        
         // Allocate memory for tokens
         Token* tokens = malloc(sizeof(Token) * strlen(line));
         if (tokens == NULL) {
@@ -353,23 +357,19 @@ int main(void) {
             else if (tokens[0].type == TOKEN_IF) {
                 tokens++;
                 condition = parseExpression(&tokens, variables);
-            }
-            else if (tokens[0].type == TOKEN_ELSE) { // needs space after else
+            } else if (tokens[0].type == TOKEN_ELSE) { // needs space after else
                 tokens++;
                 if (*tokens->value == TOKEN_IF) {
                     tokens++;
                     printf("%s", (*(tokens)).value);
                     condition = parseExpression(&tokens, variables);
-                }
-                else {
-                    condition = !conditionCopy;
+                } else {
+                    condition = !conditionCopy; 
                     tokens++;
                 }
-            }
-            else if (tokens[0].type == TOKEN_EOFUNC) {
+            } else if (tokens[0].type == TOKEN_EOFUNC) {
                 // Else if created for exception lol
-            }
-            else {
+            } else {
                 result = parseExpression(&tokens, variables);
             }
         }
@@ -378,16 +378,15 @@ int main(void) {
             conditionCopy = condition;
             condition = 1;
         }
-
+        
         // Update tokens pointer address after parsing the expression
         if (tokensLocation != NULL) {
             tokens = tokensLocation;
         }
-
-        free(tokens);
     }
-
     printf("\n%d\n", result);
+
+    free(tokens);
     free(variables);
     fclose(file);
     exit(EXIT_SUCCESS);
