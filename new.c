@@ -342,10 +342,6 @@ int main(void) {
             }
         }
 
-        for (int i = 0; i < tokenCount; i++) {
-            printf("val: %s\n", tokens[i].value);
-        }
-
         // Check if you can read line
         if (condition) {
             // Parse tokens
