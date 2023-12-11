@@ -1,8 +1,11 @@
 int y = 5
-if (y == 4):
+if (1 == 4):
     int x = 2
 _
-else:
+else if (2 == 2):
     int x = 4
+_
+else :
+    int x = y
 _
 x + 1
