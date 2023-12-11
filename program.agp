@@ -1,4 +1,5 @@
-if (2 == 2):
+int y = 5
+if (y == 4):
     int x = 2
 _
 else:

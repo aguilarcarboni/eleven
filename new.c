@@ -342,6 +342,10 @@ int main(void) {
             }
         }
 
+        // If you are in loop mode
+        // Check if condition is true now
+        // Rerun line
+
         // Check if you can read line
         if (condition) {
             // Parse tokens
@@ -359,6 +363,9 @@ int main(void) {
             else if (tokens[0].type == TOKEN_EOFUNC) {
                 //
             }
+            // Loop logic
+            // Check expression and determine loop
+            // Save lines needed for loop
             else {
                 result = parseExpression(&tokens, variables);
             }
@@ -372,6 +379,7 @@ int main(void) {
         if (tokensLocation != NULL) {
             tokens = tokensLocation;
         }
+        
         free(value);
         free(tokens);
     }
