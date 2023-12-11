@@ -1,3 +1,5 @@
+#define _CRTDBG_MAP_ALLOC
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +76,7 @@ Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
     int value = parseExpression(tokens, variables);
     (*tokens)++;
 
-    return (Variable) { variableName, value }; // possible leak
+    return (Variable) { variableName, value };
 }
 
 // Returns an integer that can be used for a further operations     (expression), x, 2
@@ -248,7 +250,7 @@ Token getNextToken(char* input, int* position, char** value) {
 
         printf("int: %s\n", *value);
 
-        return (Token) { TOKEN_INT, *value };
+        return (Token) { TOKEN_INT, strdup(*value) };
 
     }
     else if (isalpha(currentChar)) { // if char is letter
@@ -284,7 +286,7 @@ Token getNextToken(char* input, int* position, char** value) {
             return (Token) { TOKEN_ELSE, "else" };
         }
 
-        return (Token) { TOKEN_IDENTIFIER, *value };
+        return (Token) { TOKEN_IDENTIFIER, strdup(*value) };
     }
 
     // If the current character is not recognized, return an error token
@@ -343,8 +345,31 @@ int main(void) {
             }
         }
 
-        for (int i = 0; i < tokenCount; i++) {
-            printf("val: %s\n", tokens[i].value);
+        // Check if you can read line
+        if (condition) {
+            // Parse tokens
+            if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
+                variables[0] = parseVariableDeclaration(&tokens, variables);
+            }
+            else if (tokens[0].type == TOKEN_IF) {
+                tokens++;
+                condition = parseExpression(&tokens, variables);
+            }
+            else if (tokens[0].type == TOKEN_ELSE) {
+                tokens++;
+                condition = !conditionCopy;
+            }
+            else if (tokens[0].type == TOKEN_EOFUNC) {
+                //
+            }
+            else {
+                result = parseExpression(&tokens, variables);
+            }
+        }
+
+        if (tokens[0].type == TOKEN_EOFUNC) {
+            conditionCopy = condition;
+            condition = 1;
         }
 
         if (tokensLocation != NULL) {
