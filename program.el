@@ -1,4 +1,4 @@
-int y = 5
+int y = 45
 string v = "hello world"
 string s = "s"
 if (1 == 4):
@@ -15,4 +15,3 @@ string z = copy(v[0])
 string w = concat(v, s)
 log(z)
 log(v)
-esin(y)

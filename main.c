@@ -484,7 +484,7 @@ Token getNextToken(char* line, int* position, char** value) {
         // add NULL char
         (*value)[length] = '\0';
 
-        return (Token) { TOKEN_STR, _strdup(*value) };
+        return (Token) { TOKEN_STR, strdup(*value) };
 
     }
     else if (currentChar == '[') { // if char is a number
@@ -521,7 +521,7 @@ Token getNextToken(char* line, int* position, char** value) {
         // add NULL char
         (*value)[length] = '\0';
 
-        return (Token) { TOKEN_INDEXER, _strdup(*value) };
+        return (Token) { TOKEN_INDEXER, strdup(*value) };
 
     }
     else if (isdigit(currentChar)) { // if char is a number
@@ -551,7 +551,7 @@ Token getNextToken(char* line, int* position, char** value) {
         // add NULL char
         (*value)[length] = '\0';
 
-        return (Token) { TOKEN_INT, _strdup(*value) };
+        return (Token) { TOKEN_INT, strdup(*value) };
 
     }
     else if (isalpha(currentChar)) { // if char is letter
@@ -607,7 +607,7 @@ Token getNextToken(char* line, int* position, char** value) {
             return (Token) { TOKEN_SIN, "esin" };
         }
 
-        return (Token) { TOKEN_IDENTIFIER, _strdup(*value) };
+        return (Token) { TOKEN_IDENTIFIER, strdup(*value) };
     }
 
     // If the current character is not recognized, return an error token
@@ -635,7 +635,7 @@ int main(void) {
 
     // Read file
     FILE* file;
-    file = fopen("program.agp", "r");
+    file = fopen("program.el", "r");
     if (file == NULL) {
         printf("System error: Couldn't open file\n");
         exit(EXIT_FAILURE);
