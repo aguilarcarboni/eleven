@@ -11,7 +11,9 @@ else:
     int x = y
 _
 x + y
+$$$ comment
 string z = copy(v[0])
 string w = concat(v, s)
 log(z)
 log(v)
+esin(PI)

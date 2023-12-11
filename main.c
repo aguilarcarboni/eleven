@@ -1,4 +1,3 @@
-#define _CRTDBG_MAP_ALLOC
 #define MAX_LINE_SIZE 200
 
 #include <stdio.h>
@@ -29,11 +28,15 @@ typedef enum {
     TOKEN_EOFUNC,
     TOKEN_SEPARATOR,
     TOKEN_PERIOD,
+    TOKEN_COMMENT,
     TOKEN_LOG,
     TOKEN_CONCAT,
     TOKEN_SCOPY,
     TOKEN_INDEXER,
-    TOKEN_SIN
+    TOKEN_SIN,
+    TOKEN_COS,
+    TOKEN_TAN,
+    TOKEN_PI
 } TokenType;
 
 // Token structure
@@ -51,56 +54,42 @@ typedef struct {
     char* word;
 } Variable;
 
-// Main function declarations
+
+// System function declarations
+void writeToConsole(Token** tokens, Variable* variables);
 Variable findVariable(Token** tokens, Variable* variables);
+
+// Lexer function declarations
 Token getNextToken(char* line, int* position, char** value);
+
+// Parser function declarations
 int parseFactor(Token** tokens, Variable* variables);
 int parseTerm(Token** tokens, Variable* variables);
 int parseExpression(Token** tokens, Variable* variables);
 Variable parseVariableDeclaration(Token** tokens, Variable* variables);
-// Find variable
-
-// System function declarations
-void writeToConsole(Token** tokens, Variable* variables);
 
 // String methods declarations
 void concatStrings(Token** tokens, Variable* variables);
 char* copyString(Token** tokens, Variable* variables);
 
-// float type
-
-// Splice string
-// Slice string
-
-// while ()
-// [] an int arr
-
-// simple math
+// Math library declarations
 int esin(Token** tokens, Variable* variables);
-
-/*
 int ecos(Token** tokens, Variable* variables);
 int etan(Token** tokens, Variable* variables);
-int atan(Token** tokens, Variable* variables);
-int acos(Token** tokens, Variable* variables);
-int atan(Token** tokens, Variable* variables);
 
-int floor(Token** tokens, Variable* variables);
-int ceil(Token** tokens, Variable* variables);
+// System functions
 
-int sqrt(Token** tokens, Variable* variables);
-int log(Token** tokens, Variable* variables);
-*/
+// Writes a single line to the "console"
+void writeToConsole(Token** tokens, Variable* variables) {
+    // Parse expression inside arguments
+    int result = parseExpression(tokens, variables);
 
-int esin(Token** tokens, Variable* variables) {
-    if ((*tokens)->type == TOKEN_IDENTIFIER  && (*tokens + 1)->type == TOKEN_RPAREN) {
-        double result = (double) parseExpression(tokens, variables);
-        result = cos(result);
-        printf("Float result: %lf\n", result);
-        return result;
-    } else {
-        printf("Error: Unexpected call. Expected sin(angle). \n");
-        exit(EXIT_FAILURE);
+    // Print if expression is a string
+    if (result != 0) {
+        printf("%d\n", result);
+    }
+    else {
+        return;
     }
 }
 
@@ -127,262 +116,6 @@ Variable findVariable(Token** tokens, Variable* variables) {
         exit(EXIT_FAILURE);
     }
     return (variables[variableIndex]);
-}
-
-// Parser
-
-// Parses a variables declaration
-// Returns a variable that can be stored in variable array
-// Examples: int x = 2, int y = x
-Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
-
-    // Variable type
-    if ((*tokens)->type != TOKEN_IDENTIFIER) {
-        printf("Error: Expected variable type\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Save variable type
-    char* variableType = (*tokens)->value;
-
-    // Move forward on tokens array
-    (*tokens)++;
-
-    // Variable name
-    if ((*tokens)->type != TOKEN_IDENTIFIER) {
-        printf("Error: Expected variable name\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Save variable name
-    char* variableName = (*tokens)->value;
-
-    // Move forward on tokens array
-    (*tokens)++;
-
-    // Equals sign
-    if ((*tokens)->type != TOKEN_EQUALS) {
-        printf("Error: Expected equals sign (=)\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Move forward on tokens array
-    (*tokens)++;
-
-    // Calculate length of token string
-    int length = strlen((*tokens)->value);
-
-    // Declare value for output
-    int value = 0;
-
-    // Allocate memory for one word of length of token
-    char* word = malloc(length + 1);
-
-    if ((*tokens)->type == TOKEN_INT || (*tokens)->type == TOKEN_STR) {
-        // Check for the variable type
-        // If is int
-        if (strcmp(variableType, "int") == 0) {
-            value = parseExpression(tokens, variables);
-        }
-        // If is string
-        else if (strcmp(variableType, "string") == 0) {
-            strncpy(word, (*tokens)->value, length);
-            word[length] = '\0';
-        }
-        else {
-            printf("Error: Unidentified variable type\n");
-            exit(EXIT_FAILURE);
-        }
-    } else if ((*tokens)->type == TOKEN_SCOPY) {
-        (*tokens)++;
-        word = copyString(tokens, variables);
-    }
-    else if ((*tokens)->type == TOKEN_CONCAT) {
-        (*tokens)++;
-        concatStrings(tokens, variables);
-    }
-    // Move forward on tokens array
-    (*tokens)++;
-
-    return (Variable) { variableType, variableName, value, word };
-}
-
-// Parses a factor
-// Returns an integer that can be used to solve a term     
-// Examples: x, 2, ()
-int parseFactor(Token** tokens, Variable* variables) {
-    // If token is an integer
-    if ((*tokens)->type == TOKEN_INT) {
-        int result = atoi((*tokens)->value);
-
-        // Move forward in tokens array
-        (*tokens)++;
-        return result;
-    }
-    // If token is a (
-    else if ((*tokens)->type == TOKEN_LPAREN) {
-        // Move forward in tokens array
-        (*tokens)++;
-
-        // Parse expression inside parenthesis
-        int result = parseExpression(tokens, variables);
-
-        // Check for lack of )
-        if ((*tokens)->type != TOKEN_RPAREN) {
-            printf("Error: Missing closing parenthesis\n");
-            exit(EXIT_FAILURE);
-        }
-
-        // Move forward in tokens array
-        (*tokens)++;
-        return result;
-    }
-    else if ((*tokens)->type == TOKEN_IDENTIFIER) {
-        Variable var = findVariable(tokens, variables);
-
-        if ((*tokens+1)->type == TOKEN_INDEXER && strcmp(var.type,"string") == 0) {
-            int index = ((*tokens + 1)->value)[1] - '0';
-            printf("%c\n", *var.word + index);
-        }
-
-        // Assign result to that variable's value
-        int result = var.value;
-        if (var.word != NULL && result == 0) {
-            printf("%s\n", var.word);
-        }
-        // Move forward in tokens array
-        (*tokens)++;
-        return result;
-    }
-    else {
-        printf("Error: Unexpected token\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-// Parses a term
-// Returns an int that can be used to solve expression      
-// Examples: (2*2), ((2*3)/2)
-int parseTerm(Token** tokens, Variable* variables) {
-    // Parse first factor in term
-    int result = parseFactor(tokens, variables);
-
-    // Loop so you can do multiple computations
-    while ((*tokens)->type == TOKEN_MUL || (*tokens)->type == TOKEN_DIV) {
-        Token* currentToken = *tokens;
-
-        // Move forward in tokens array
-        (*tokens)++;
-
-        // Parse next factor in term
-        int nextFactor = parseFactor(tokens, variables);
-
-        if (currentToken->type == TOKEN_MUL) {
-            result *= nextFactor;
-        }
-        else if (currentToken->type == TOKEN_DIV) {
-            if (nextFactor == 0) {
-                printf("Error: Division by zero\n");
-                exit(EXIT_FAILURE);
-            }
-            result /= nextFactor;
-        }
-    }
-
-    return result;
-}
-
-// Parses an expression
-// Returns the result to the expression     
-// Examples: (10/2) + 1, 1+1, ((3*5+1)/10)+10, 1 == 2
-int parseExpression(Token** tokens, Variable* variables) {
-    // Parse first term in expression
-    int result = parseTerm(tokens, variables);
-
-    // Check if expression is an equality
-    if ((*tokens)->type == TOKEN_EQUALS && ((*tokens) + 1)->type == TOKEN_EQUALS) {
-        // Move forward two spaces in tokens array (two equals)
-        (*tokens) += 2;
-
-        // Parse next term in expression
-        int nextTerm = parseTerm(tokens, variables);
-
-        // Return a boolean equality
-        return (result == nextTerm);
-    }
-    else {
-        // Loop so you can do multiple computations
-        while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
-            Token* currentToken = *tokens;
-
-            // Move forward in tokens array
-            (*tokens)++;
-
-            // Parse next term in expression
-            int nextTerm = parseTerm(tokens, variables);
-
-            // Compute result depending on the operation
-            if (currentToken->type == TOKEN_PLUS) {
-                result += nextTerm;
-            }
-            else if (currentToken->type == TOKEN_MINUS) {
-                result -= nextTerm;
-            }
-        }
-        return result;
-    }
-}
-
-// Writes a single line to the "console"
-void writeToConsole(Token** tokens, Variable* variables) {
-    // Parse expression inside arguments
-    int result = parseExpression(tokens, variables);
-
-    // Print if expression is a string
-    if (result != 0) {
-        printf("%d\n", result);
-    } else {
-        return;
-    }
-}
-
-// Concatenates two strings
-// Returns a string that can be assigned to a variable
-// concat(dest, src)
-void concatStrings(Token** tokens, Variable* variables) {
-    if ((*tokens)->type == TOKEN_IDENTIFIER  && (*tokens + 1)->type == TOKEN_SEPARATOR && (*tokens + 2)->type == TOKEN_IDENTIFIER) {
-        char* string1 = findVariable(tokens, variables).word;
-        (*tokens)+=2;
-        char* string2 = findVariable(tokens, variables).word;
-        strcat(string1, string2);
-        return;
-    } else {
-        printf("Error: Unexpected call. Expecting concat(dest, src). \n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-// Copies a string into a variable
-// copy(src)
-char* copyString(Token** tokens, Variable* variables) {
-    if ((*tokens)->type == TOKEN_IDENTIFIER  && (*tokens + 1)->type == TOKEN_RPAREN) {
-        char* string = findVariable(tokens, variables).word;
-        return string;
-    } else if ((*tokens)->type == TOKEN_IDENTIFIER  && (*tokens + 1)->type == TOKEN_INDEXER && (*tokens + 2)->type == TOKEN_RPAREN) {
-        int index = ((*tokens + 1)->value)[1] - '0';
-        char* word = findVariable(tokens, variables).word;
-        if (index >= strlen(word)) {
-            printf("Error: Index is out of bounds. \n");
-            exit(EXIT_FAILURE);
-        }
-        char *value = malloc(2);
-        strncpy(value, &word[index], 1);
-        value[2] = '\0';
-        return value;
-    } else {
-        printf("Error: Unexpected call. Expecting copy(src). \n");
-        exit(EXIT_FAILURE);
-    }
 }
 
 // Lexer
@@ -487,6 +220,42 @@ Token getNextToken(char* line, int* position, char** value) {
         return (Token) { TOKEN_STR, strdup(*value) };
 
     }
+    else if (currentChar == '$') { // if char is a number
+        // Index start of token
+        int start = *position;
+
+        (*position)++;
+
+        // Read whole number
+        while (line[*position] == '$') {
+            (*position)++;
+        }
+
+        // Calculate length of token
+        int length = *position - start;
+
+        if (length != 3) {
+            printf("Error: Unexpected token: $. Comment with $$$. \n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Reallocate data for values depending on length of token
+        char* valueLocation = realloc(*value, length + 1);
+
+        // Update value pointer location for freeing
+        if (valueLocation != NULL) {
+            *value = valueLocation;
+        }
+
+        // Copy number at start with length of number
+        strncpy(*value, &line[start], length);
+
+        // add NULL char
+        (*value)[length] = '\0';
+
+        return (Token) { TOKEN_COMMENT, strdup(*value) };
+
+    }
     else if (currentChar == '[') { // if char is a number
         // Index start of token
         int start = *position;
@@ -589,11 +358,11 @@ Token getNextToken(char* line, int* position, char** value) {
         else if (strcmp(*value, "else") == 0) {
             (*position)++;
             return (Token) { TOKEN_ELSE, "else" };
-        }        
+        }
         else if (strcmp(*value, "log") == 0) {
             (*position)++;
             return (Token) { TOKEN_LOG, "log" };
-        }        
+        }
         else if (strcmp(*value, "concat") == 0) {
             (*position)++;
             return (Token) { TOKEN_CONCAT, "concat" };
@@ -606,13 +375,318 @@ Token getNextToken(char* line, int* position, char** value) {
             (*position)++;
             return (Token) { TOKEN_SIN, "esin" };
         }
-
+        else if (strcmp(*value, "ecos") == 0) {
+            (*position)++;
+            return (Token) { TOKEN_COS, "etan" };
+        }
+        else if (strcmp(*value, "etan") == 0) {
+            (*position)++;
+            return (Token) { TOKEN_TAN, "etan" };
+        }
+        else if (strcmp(*value, "PI") == 0) {
+            (*position)++;
+            return (Token) { TOKEN_PI, "PI" };
+        }
         return (Token) { TOKEN_IDENTIFIER, strdup(*value) };
     }
 
     // If the current character is not recognized, return an error token
     printf("Tokenizing error: Unrecognized character '%c'\n", currentChar);
     exit(EXIT_FAILURE);
+}
+
+
+// Parser
+
+// Parses a variables declaration
+// Returns a variable that can be stored in variable array
+// Examples: int x = 2, int y = x
+Variable parseVariableDeclaration(Token** tokens, Variable* variables) {
+
+    // Variable type
+    if ((*tokens)->type != TOKEN_IDENTIFIER) {
+        printf("Error: Expected variable type\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Save variable type
+    char* variableType = (*tokens)->value;
+
+    // Move forward on tokens array
+    (*tokens)++;
+
+    // Variable name
+    if ((*tokens)->type != TOKEN_IDENTIFIER) {
+        printf("Error: Expected variable name\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Save variable name
+    char* variableName = (*tokens)->value;
+
+    // Move forward on tokens array
+    (*tokens)++;
+
+    // Equals sign
+    if ((*tokens)->type != TOKEN_EQUALS) {
+        printf("Error: Expected equals sign (=)\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Move forward on tokens array
+    (*tokens)++;
+
+    // Calculate length of token string
+    int length = strlen((*tokens)->value);
+
+    // Declare value for output
+    int value = 0;
+
+    // Allocate memory for one word of length of token
+    char* word = malloc(length + 1);
+
+    if ((*tokens)->type == TOKEN_INT || (*tokens)->type == TOKEN_STR) {
+        // Check for the variable type
+        // If is int
+        if (strcmp(variableType, "int") == 0) {
+            value = parseExpression(tokens, variables);
+        }
+        // If is string
+        else if (strcmp(variableType, "string") == 0) {
+            strncpy(word, (*tokens)->value, length);
+            word[length] = '\0';
+        }
+        else {
+            printf("Error: Unidentified variable type\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if ((*tokens)->type == TOKEN_SCOPY) {
+        (*tokens)++;
+        word = copyString(tokens, variables);
+    }
+    else if ((*tokens)->type == TOKEN_CONCAT) {
+        (*tokens)++;
+        concatStrings(tokens, variables);
+    }
+    else if ((*tokens)->type == TOKEN_IDENTIFIER) {
+        Variable var = findVariable(tokens, variables);
+        word = var.word;
+        value = var.value;
+    }
+
+    // Move forward on tokens array
+    (*tokens)++;
+
+    return (Variable) { variableType, variableName, value, word };
+}
+
+// Parses a factor
+// Returns an integer that can be used to solve a term     
+// Examples: x, 2, ()
+int parseFactor(Token** tokens, Variable* variables) {
+    // If token is an integer
+    if ((*tokens)->type == TOKEN_INT) {
+        int result = atoi((*tokens)->value);
+
+        // Move forward in tokens array
+        (*tokens)++;
+        return result;
+    }
+    // If token is a (
+    else if ((*tokens)->type == TOKEN_LPAREN) {
+        // Move forward in tokens array
+        (*tokens)++;
+
+        // Parse expression inside parenthesis
+        int result = parseExpression(tokens, variables);
+
+        // Check for lack of )
+        if ((*tokens)->type != TOKEN_RPAREN) {
+            printf("Error: Missing closing parenthesis\n");
+            exit(EXIT_FAILURE);
+        }
+
+        // Move forward in tokens array
+        (*tokens)++;
+        return result;
+    }
+    else if ((*tokens)->type == TOKEN_IDENTIFIER) {
+        Variable var = findVariable(tokens, variables);
+
+        if ((*tokens + 1)->type == TOKEN_INDEXER && strcmp(var.type, "string") == 0) {
+            int index = ((*tokens + 1)->value)[1] - '0';
+            printf("%s\n", (*var.word + index) + '\0');
+        }
+
+        // Assign result to that variable's value
+        int result = var.value;
+        if (var.word != NULL && result == 0) {
+            printf("%s\n", var.word);
+        }
+        // Move forward in tokens array
+        (*tokens)++;
+        return result;
+    }
+    else if ((*tokens)->type == TOKEN_PI) {
+        return 3;
+    }
+    else {
+        printf("Error: Unexpected token\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Parses a term
+// Returns an int that can be used to solve expression      
+// Examples: (2*2), ((2*3)/2)
+int parseTerm(Token** tokens, Variable* variables) {
+    // Parse first factor in term
+    int result = parseFactor(tokens, variables);
+
+    // Loop so you can do multiple computations
+    while ((*tokens)->type == TOKEN_MUL || (*tokens)->type == TOKEN_DIV) {
+        Token* currentToken = *tokens;
+
+        // Move forward in tokens array
+        (*tokens)++;
+
+        // Parse next factor in term
+        int nextFactor = parseFactor(tokens, variables);
+
+        if (currentToken->type == TOKEN_MUL) {
+            result *= nextFactor;
+        }
+        else if (currentToken->type == TOKEN_DIV) {
+            if (nextFactor == 0) {
+                printf("Error: Division by zero\n");
+                exit(EXIT_FAILURE);
+            }
+            result /= nextFactor;
+        }
+    }
+
+    return result;
+}
+
+// Parses an expression
+// Returns the result to the expression     
+// Examples: (10/2) + 1, 1+1, ((3*5+1)/10)+10, 1 == 2
+int parseExpression(Token** tokens, Variable* variables) {
+    // Parse first term in expression
+    int result = parseTerm(tokens, variables);
+
+    // Check if expression is an equality
+    if ((*tokens)->type == TOKEN_EQUALS && ((*tokens) + 1)->type == TOKEN_EQUALS) {
+        // Move forward two spaces in tokens array (two equals)
+        (*tokens) += 2;
+
+        // Parse next term in expression
+        int nextTerm = parseTerm(tokens, variables);
+
+        // Return a boolean equality
+        return (result == nextTerm);
+    }
+    else {
+        // Loop so you can do multiple computations
+        while ((*tokens)->type == TOKEN_PLUS || (*tokens)->type == TOKEN_MINUS) {
+            Token* currentToken = *tokens;
+
+            // Move forward in tokens array
+            (*tokens)++;
+
+            // Parse next term in expression
+            int nextTerm = parseTerm(tokens, variables);
+
+            // Compute result depending on the operation
+            if (currentToken->type == TOKEN_PLUS) {
+                result += nextTerm;
+            }
+            else if (currentToken->type == TOKEN_MINUS) {
+                result -= nextTerm;
+            }
+        }
+        return result;
+    }
+}
+
+// String functions
+
+// Concatenates two strings
+// Returns a string that can be assigned to a variable
+// concat(dest, src)
+void concatStrings(Token** tokens, Variable* variables) {
+    if ((*tokens)->type == TOKEN_IDENTIFIER && (*tokens + 1)->type == TOKEN_SEPARATOR && (*tokens + 2)->type == TOKEN_IDENTIFIER) {
+        char* string1 = findVariable(tokens, variables).word;
+        (*tokens) += 2;
+        char* string2 = findVariable(tokens, variables).word;
+        strcat(string1, string2);
+        return;
+    }
+    else {
+        printf("Error: Unexpected call. Expecting concat(dest, src). \n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Copies a string into a variable
+// string copy(src)
+char* copyString(Token** tokens, Variable* variables) {
+    if ((*tokens)->type == TOKEN_IDENTIFIER && (*tokens + 1)->type == TOKEN_RPAREN) {
+        char* string = findVariable(tokens, variables).word;
+        return string;
+    }
+    else if ((*tokens)->type == TOKEN_IDENTIFIER && (*tokens + 1)->type == TOKEN_INDEXER && (*tokens + 2)->type == TOKEN_RPAREN) {
+        int index = ((*tokens + 1)->value)[1] - '0';
+        char* word = findVariable(tokens, variables).word;
+        if (index >= strlen(word)) {
+            printf("Error: Index is out of bounds. \n");
+            exit(EXIT_FAILURE);
+        }
+        char* value = malloc(2);
+        strncpy(value, &word[index], 1);
+        value[2] = '\0';
+        return value;
+    }
+    else {
+        printf("Error: Unexpected call. Expecting copy(src). \n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Math functions
+
+// Takes an integer and returns the truncted sin result back
+// Also prints the float value
+// Angle in degrees
+// int sin(angle)
+int esin(Token** tokens, Variable* variables) {
+    double result = (double)parseExpression(tokens, variables);
+    result = sin(result);
+    printf("Float result: %lf\n", result);
+    return result;
+}
+
+// Takes an integer and returns the truncted cos result back
+// Also prints the float value
+// Angle in degrees
+// int cos(angle)
+int ecos(Token** tokens, Variable* variables) {
+    double result = (double)parseExpression(tokens, variables);
+    result = cos(result);
+    printf("Float result: %lf\n", result);
+    return result;
+}
+
+// Takes an integer and returns the truncted tan result back
+// Also prints the float value
+// Angle in degrees
+// int tan(angle)
+int etan(Token** tokens, Variable* variables) {
+    double result = (double)parseExpression(tokens, variables);
+    result = cos(result);
+    printf("Float result: %lf\n", result);
+    return result;
 }
 
 int main(void) {
@@ -714,26 +788,40 @@ int main(void) {
                 else {
                     condition = !conditionCopy;
                 }
-            } else if (tokens[0].type == TOKEN_LOG) {
+            }
+            // If line is a log statement
+            else if (tokens[0].type == TOKEN_LOG) {
                 tokens++;
                 writeToConsole(&tokens, variables);
             }
+            // If line is a concat statement
             else if (tokens[0].type == TOKEN_CONCAT) {
                 tokens++;
                 concatStrings(&tokens, variables);
             }
+            // If line is a sin statement
             else if (tokens[0].type == TOKEN_SIN) {
                 tokens++;
                 result = esin(&tokens, variables);
+            }
+            // If line is a cos statement
+            else if (tokens[0].type == TOKEN_COS) {
+                tokens++;
+                result = ecos(&tokens, variables);
+            }
+            // If line is a tan statement
+            else if (tokens[0].type == TOKEN_TAN) {
+                tokens++;
+                result = etan(&tokens, variables);
+            }
+            // If line is a comment
+            else if (tokens[0].type == TOKEN_COMMENT) {
+                tokens++;
             }
             // If line is an end of function line
             else if (tokens[0].type == TOKEN_EOFUNC) {
                 tokens++;
             }
-            // Loop logic
-            // Check expression and determine loop
-            // Save lines needed for loop
-
             // If line is an expression
             else {
                 result = parseExpression(&tokens, variables);
