@@ -144,7 +144,6 @@ int parseExpression(Token** tokens, Variable* variables) {
     if ((*tokens)->type == TOKEN_EQUALS && ((*tokens) + 1)->type == TOKEN_EQUALS) {
         (*tokens) += 2;
         int nextTerm = parseTerm(tokens, variables);
-        printf("%d==%d\n", result, nextTerm);
         return (result == nextTerm);
     }
     else {
@@ -248,9 +247,7 @@ Token getNextToken(char* input, int* position, char** value) {
         // add NULL char
         (*value)[length] = '\0';
 
-        printf("int: %s\n", *value);
-
-        return (Token) { TOKEN_INT, strdup(*value) };
+        return (Token) { TOKEN_INT, (*value) };
 
     }
     else if (isalpha(currentChar)) { // if char is letter
@@ -286,7 +283,7 @@ Token getNextToken(char* input, int* position, char** value) {
             return (Token) { TOKEN_ELSE, "else" };
         }
 
-        return (Token) { TOKEN_IDENTIFIER, strdup(*value) };
+        return (Token) { TOKEN_IDENTIFIER, (*value) };
     }
 
     // If the current character is not recognized, return an error token
