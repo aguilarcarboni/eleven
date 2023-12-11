@@ -6,6 +6,7 @@ This programming language combines the ease of use of Python with the functional
 since it can take advantage of pointers (strings).
 
 Syntax:
+All commands must start in new line.
 
 Comments:
 $$$ comment
