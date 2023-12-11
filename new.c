@@ -247,7 +247,7 @@ Token getNextToken(char* input, int* position, char** value) {
         // add NULL char
         (*value)[length] = '\0';
 
-        return (Token) { TOKEN_INT, (*value) };
+        return (Token) { TOKEN_INT, strdup(*value) };
 
     }
     else if (isalpha(currentChar)) { // if char is letter
@@ -283,7 +283,7 @@ Token getNextToken(char* input, int* position, char** value) {
             return (Token) { TOKEN_ELSE, "else" };
         }
 
-        return (Token) { TOKEN_IDENTIFIER, (*value) };
+        return (Token) { TOKEN_IDENTIFIER, strdup(*value) };
     }
 
     // If the current character is not recognized, return an error token
@@ -340,6 +340,10 @@ int main(void) {
                 flag = 0;
                 break;
             }
+        }
+
+        for (int i = 0; i < tokenCount; i++) {
+            printf("val: %s\n", tokens[i].value);
         }
 
         // Check if you can read line

@@ -343,6 +343,7 @@ int main(void) {
 
         // Check if you can read line
         if (condition) {
+            printf("%d ", condition);
             // Parse tokens
             if (tokens[0].type == TOKEN_IDENTIFIER && tokens[1].type == TOKEN_IDENTIFIER) {
                 variables[0] = parseVariableDeclaration(&tokens, variables);
