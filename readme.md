@@ -5,13 +5,15 @@ Eleven is a programming language made by Andres Aguilar for CS 1412.
 This programming language combines the ease of use of Python with the functionality of C, 
 since it can take advantage of pointers (strings).
 
-Syntax:
-All commands must start in new line.
+Create file called program.el
 
-Comments:
+## Syntax:
+### All commands must start in new line.
+
+### Comments:
 $$$ comment
 
-Variable declarations:
+### Variable declarations:
 int x = 5
 string w = "stringy"
 
