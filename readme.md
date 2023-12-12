@@ -11,17 +11,25 @@ Create file called program.el
 ### All commands must start in new line.
 
 ### Comments:
+```
 $$$ comment
+```
 
 ### Variable declarations:
+```
 int x = 5
 string w = "stringy"
+```
 
 Strings can be indexed:
+```
 string s = copy(w[0])
+```
 
 Strings can be copied or concatenated:
+```
 concat(s, w)
+```
 
 Conditionals:
 ```
