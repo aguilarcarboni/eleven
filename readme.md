@@ -24,6 +24,7 @@ Strings can be copied or concatenated:
 concat(s, w)
 
 Conditionals:
+```
 if condition: 
     statement
 _
@@ -33,14 +34,21 @@ _
 else:
     statement 
 _
+```
 
-Math functions: (return a truncated int and print the float)
+### Math functions: (return a truncated int and print the float)
+```
 sin(angle)
 cos(angle)
 tan(angle)
-PI = 3 (come on engineers!)
+```
 
-Write to console:
+### Write to console:
 log(expression)
+
+### Globals:
+```
+PI = 3 (come on engineers!)
+```
 
 This is all you need to know. Happy coding with Eleven!
