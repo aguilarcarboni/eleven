@@ -16,6 +16,7 @@ $$$ comment
 ```
 
 ### Variable declarations:
+Supports integer and string types
 ```
 int x = 5
 string w = "stringy"
@@ -52,7 +53,9 @@ tan(angle)
 ```
 
 ### Write to console:
+```
 log(expression)
+```
 
 ### Globals:
 ```
