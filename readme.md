@@ -89,5 +89,8 @@ concat(s, w)
 log(s)
 ```
 
+### Results
+- Scored 88% in the project.
+
 
 ### created by [@aguilarcarboni](https://github.com/aguilarcarboni/)
