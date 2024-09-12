@@ -4,9 +4,9 @@
 
 ### Description
  
-Eleven is a programming language made by Andres Aguilar for CS 1412.
+Eleven is an inrerpreted programming language.
 
-This programming language combines the ease of use of Python with the functionality of C, 
+Eleven combines the ease of use of Python with the functionality of C, 
 since it can take advantage of pointers (strings).
 
 ### Installation and usage
