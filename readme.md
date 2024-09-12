@@ -9,17 +9,30 @@ Eleven is a programming language made by Andres Aguilar for CS 1412.
 This programming language combines the ease of use of Python with the functionality of C, 
 since it can take advantage of pointers (strings).
 
-Create file called program.el
+### Installation and usage
 
-## Syntax:
-### All commands must start in new line.
+```
+git clone https://github.com/aguilarcarboni/eleven.git
+```
 
-### Comments:
+Create a file named `program.el` and write your code there.
+
+To run the program, type the following command in the terminal:
+```
+gcc main.c -o main
+./main
+```
+
+### Documentation:
+
+All commands must start in new line.
+
+**Comments:**
 ```
 $$$ comment
 ```
 
-### Variable declarations:
+**Variable declarations:**
 Supports integer and string types
 ```
 int x = 5
@@ -49,21 +62,32 @@ else:
 _
 ```
 
-### Math functions: (return a truncated int and print the float)
+**Math functions:** (return a truncated int and print the float)
 ```
 sin(angle)
 cos(angle)
 tan(angle)
 ```
 
-### Write to console:
+**Write to console:**
 ```
 log(expression)
 ```
 
-### Globals:
+**Globals:**
 ```
 PI = 3 (come on engineers!)
 ```
 
-This is all you need to know. Happy coding with Eleven!
+### Examples
+
+```
+int x = 5
+string w = "stringy"
+string s = copy(w[0])
+concat(s, w)
+log(s)
+```
+
+
+### created by [@aguilarcarboni](https://github.com/aguilarcarboni/)
