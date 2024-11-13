@@ -22,7 +22,7 @@ gcc main.c -o main
 ### Documentation:
 For detailed documentation on Eleven's syntax and features, please refer to the [documentation](docs/README.md).
 
-### Example usage:
+### Example usage
 
 ```
 int x = 5
