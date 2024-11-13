@@ -17,7 +17,7 @@ Create or modify the file named `program.el` and write your code there.
 
 To run the program, compile the main.c file and run:
 
-GCC
+** GCC **
 ```
 gcc main.c -o main
 ./main
