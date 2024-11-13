@@ -1,12 +1,10 @@
 # Eleven
 
-## CS1412: Programming Principles - Final Project
+## Programming Principles
 
 ### Description
  
-Eleven is an inrerpreted programming language.
-
-Eleven combines the ease of use of Python with the functionality of C, 
+Eleven is an inrerpreted programming language. It combines the ease of use of Python with the functionality of C, 
 since it can take advantage of pointers (strings).
 
 ### Installation and usage
