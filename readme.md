@@ -13,9 +13,11 @@ since it can take advantage of pointers (strings).
 git clone https://github.com/aguilarcarboni/eleven.git
 ```
 
-Create a file named `program.el` and write your code there.
+Create or modify the file named `program.el` and write your code there.
 
-To run the program, type the following command in the terminal:
+To run the program, compile the main.c file and run:
+
+GCC
 ```
 gcc main.c -o main
 ./main
@@ -24,8 +26,7 @@ gcc main.c -o main
 ### Documentation:
 For detailed documentation on Eleven's syntax and features, please refer to the [documentation](docs/README.md).
 
-
-### Examples
+### Example usage:
 
 ```
 int x = 5
