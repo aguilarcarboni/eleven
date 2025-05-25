@@ -7,7 +7,7 @@
 Eleven is an inrerpreted programming language. It combines the ease of use of Python with the functionality of C, 
 since it can take advantage of pointers (strings).
 
-### Installation and usage
+### Compiling and Running
 
 Create or modify the file named `program.el` and write your code there.
 
