@@ -19,10 +19,10 @@ gcc main.c -o main
 ./main
 ```
 
-### Documentation:
+### Documentation
 For detailed documentation on Eleven's syntax and features, please refer to the [documentation](docs/README.md).
 
-### Example usage
+### Syntax
 
 ```
 int x = 5
